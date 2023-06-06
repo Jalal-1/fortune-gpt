@@ -1,5 +1,6 @@
 //! Database models and queries.
 pub mod graph;
+pub mod manifest;
 pub mod model;
 pub mod query;
 

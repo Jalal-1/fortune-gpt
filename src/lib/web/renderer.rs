@@ -28,7 +28,7 @@ impl<'a> Renderer<'a> {
     where
         S: serde::Serialize + std::fmt::Debug,
     {
-        serde_json::to_value(&serializable).expect("failed to convert structure to value")
+        serde_json::to_value(serializable).expect("failed to convert structure to value")
     }
 
     /// Renders a page, along with any errors.

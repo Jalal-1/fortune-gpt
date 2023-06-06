@@ -16,14 +16,8 @@ pub trait PageContext {
 }
 
 /// The Home page.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Default, Serialize)]
 pub struct Home {}
-
-impl Default for Home {
-    fn default() -> Self {
-        Self {}
-    }
-}
 
 impl PageContext for Home {
     fn template_path(&self) -> &str {

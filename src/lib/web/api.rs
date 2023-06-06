@@ -1,17 +1,19 @@
 //! API routing, errors, and data structures.
 
-use crate::data::AppDatabase;
-use crate::service;
-use crate::service::action;
-use crate::web::{ResponseCounter, PASSWORD_COOKIE};
-use crate::ServiceError;
+use std::str::FromStr;
+
 use rocket::http::{CookieJar, Status};
 use rocket::request::{FromRequest, Outcome, Request};
 use rocket::serde::json::Json;
 use rocket::Responder;
 use rocket::State;
 use serde::Serialize;
-use std::str::FromStr;
+
+use crate::data::AppDatabase;
+use crate::service;
+use crate::service::action;
+use crate::web::{ResponseCounter, PASSWORD_COOKIE};
+use crate::ServiceError;
 
 /// HTTP request header name to include an API key.
 pub const API_KEY_HEADER: &str = "x-api-key";
@@ -160,9 +162,8 @@ pub async fn get_job(
         password: cookies
             .get(PASSWORD_COOKIE)
             .map(|cookie| cookie.value())
-            .map(|raw_password| Password::new(raw_password.to_string()).ok())
-            .flatten()
-            .unwrap_or_else(Password::default),
+            .and_then(|raw_password| Password::new(raw_password.to_string()).ok())
+            .unwrap_or_default(),
     };
     let job = action::get_job(req, database.get_pool()).await?;
     hit_counter.hit(shortcode.into(), 1);

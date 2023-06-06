@@ -1,6 +1,6 @@
 //! Actions that the service may perform.
 
-use crate::data::graph::{fetch_new_jobs_from_graph, get_escrows_from_graph, GraphJob};
+use crate::data::graph::{fetch_new_jobs_from_graph, get_escrows_from_graph};
 use crate::data::{query, DatabasePool, Transaction};
 use crate::service::ask;
 use crate::web::api::ApiKey;

@@ -1,7 +1,6 @@
 //! Database queries.
 
 use super::model;
-use crate::data::graph::GraphJob;
 use crate::data::{DataError, DatabasePool};
 use crate::web::api::ApiKey;
 use crate::ShortCode;
@@ -103,7 +102,7 @@ pub async fn update_job<M: Into<model::UpdateJob>>(
 /// Saves an [`ApiKey`].
 pub async fn save_api_key(api_key: ApiKey, pool: &DatabasePool) -> Result<ApiKey> {
     let bytes = api_key.clone().into_inner();
-    let _ = sqlx::query!("INSERT INTO api_keys (api_key) VALUES (?)", bytes)
+    sqlx::query!("INSERT INTO api_keys (api_key) VALUES (?)", bytes)
         .execute(pool)
         .await
         .map(|_| ())?;

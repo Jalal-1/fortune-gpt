@@ -30,27 +30,12 @@ impl TryFrom<Job> for crate::domain::Job {
             job_id: field::JobId::new(DbId::from_str(job.job_id.as_str())?),
             shortcode: field::ShortCode::from(job.shortcode),
             escrow_id: field::EscrowId::new(job.escrow_id.as_str())?,
-            manifest_url: field::ManifestUrl::new(job.manifest_url),
+            manifest_url: ManifestUrl::new(job.manifest_url),
             posted: field::Posted::new(u64::try_from(job.posted)?),
             expires: field::Expires::new(job.expires.map(Time::from_naive_utc)),
             password: field::Password::new(job.password.unwrap_or_default())?,
             responses: field::Responses::new(u64::try_from(job.responses)?),
         })
-    }
-}
-
-impl From<crate::data::graph::GraphJob> for NewJob {
-    fn from(req: crate::data::graph::GraphJob) -> Self {
-        Self {
-            job_id: DbId::new().into(),
-            escrow_id: req.id,
-            manifest_url: req.manifestUrl.into(),
-            expires: None,
-            password: None,
-            shortcode: ShortCode::default().into(),
-            // parse as u64
-            posted: req.timestamp.parse::<i64>().unwrap(),
-        }
     }
 }
 
@@ -91,7 +76,9 @@ pub struct NewJob {
     pub(in crate::data) expires: Option<i64>,
     pub(in crate::data) password: Option<String>,
 }
-
+// This is temporary just for testing, in production on the only way that a new
+// job is created is from a graph job.  This is an exchange oracle it
+// should not be creating jobs only distributing them to workers.
 impl From<crate::service::ask::NewJob> for NewJob {
     fn from(req: crate::service::ask::NewJob) -> Self {
         Self {
@@ -102,6 +89,21 @@ impl From<crate::service::ask::NewJob> for NewJob {
             password: req.password.into_inner(),
             shortcode: ShortCode::default().into(),
             posted: req.posted.into_inner() as i64,
+        }
+    }
+}
+
+impl From<crate::data::graph::GraphJob> for NewJob {
+    fn from(req: crate::data::graph::GraphJob) -> Self {
+        Self {
+            job_id: DbId::new().into(),
+            escrow_id: req.id,
+            manifest_url: req.manifestUrl,
+            expires: None,
+            password: None,
+            shortcode: ShortCode::default().into(),
+            // parse as u64
+            posted: req.timestamp.parse::<i64>().unwrap(),
         }
     }
 }

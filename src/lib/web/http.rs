@@ -1,5 +1,11 @@
 //! Page routing, errors, and data structures.
 
+use rocket::form::{Contextual, Form};
+use rocket::http::{Cookie, CookieJar, Status};
+use rocket::response::content::RawHtml;
+use rocket::response::{status, Redirect};
+use rocket::{uri, State};
+
 use crate::data::AppDatabase;
 use crate::service;
 use crate::service::action;
@@ -7,11 +13,6 @@ use crate::web::{
     ctx, form, renderer::Renderer, responsecounter::ResponseCounter, PageError, PASSWORD_COOKIE,
 };
 use crate::{ServiceError, ShortCode};
-use rocket::form::{Contextual, Form};
-use rocket::http::{Cookie, CookieJar, Status};
-use rocket::response::content::RawHtml;
-use rocket::response::{status, Redirect};
-use rocket::{uri, State};
 
 /// Route to the home page.
 #[rocket::get("/")]
@@ -166,9 +167,8 @@ pub async fn get_raw_job(
         password: cookies
             .get(PASSWORD_COOKIE)
             .map(|cookie| cookie.value())
-            .map(|raw_password| Password::new(raw_password.to_string()).ok())
-            .flatten()
-            .unwrap_or_else(Password::default),
+            .and_then(|raw_password| Password::new(raw_password.to_string()).ok())
+            .unwrap_or_default(),
     };
     match action::get_job(req, database.get_pool()).await {
         Ok(job) => {
@@ -221,8 +221,9 @@ pub mod catcher {
 
 #[cfg(test)]
 pub mod test {
-    use crate::{data::AppDatabase, web::test::init_test_client};
     use rocket::http::Status;
+
+    use crate::{data::AppDatabase, web::test::init_test_client};
 
     #[test]
     fn gets_home() {

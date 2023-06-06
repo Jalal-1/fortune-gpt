@@ -4,6 +4,7 @@ use crate::data::DatabasePool;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
+#[allow(non_snake_case)]
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct GraphJob {
     pub id: String,
@@ -12,6 +13,7 @@ pub struct GraphJob {
 }
 
 /// Graph response object for [`launchedEscrows`] query.
+#[allow(non_snake_case)]
 #[derive(Debug, Deserialize)]
 struct Data {
     launchedEscrows: Vec<GraphJob>,
@@ -19,7 +21,7 @@ struct Data {
 
 #[derive(Debug, Deserialize)]
 struct Error {
-    message: String,
+    _message: String,
 }
 
 // Graph query response
